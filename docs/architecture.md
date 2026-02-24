@@ -36,12 +36,12 @@ apps/web/src/
 
 ## Wallet Dependency Matrix
 
-| Area                | Wallet Required | Why |
-| ------------------- | --------------- | --- |
+| Area                | Wallet Required | Why                                                                                      |
+| ------------------- | --------------- | ---------------------------------------------------------------------------------------- |
 | Onboarding          | Optional        | Only needed for deterministic `derive from wallet`; generate/import works without wallet |
-| Chat send/receive   | No              | Uses local stealth/signing keys + RPC reads/writes |
-| Settings → Keys     | Optional        | Wallet only needed for deterministic derivation path |
-| Settings → Registry | Yes (for write) | Registering meta-address is an on-chain wallet transaction |
+| Chat send/receive   | No              | Uses local stealth/signing keys + RPC reads/writes                                       |
+| Settings → Keys     | Optional        | Wallet only needed for deterministic derivation path                                     |
+| Settings → Registry | Yes (for write) | Registering meta-address is an on-chain wallet transaction                               |
 
 ## Session Management
 
@@ -68,7 +68,7 @@ interface KeyBundle {
   viewPrivKey: string;
   spendPrivKey: string;
   createdAt: number;
-  derivationMethod: 'signature' | 'imported' | 'generated';
+  derivationMethod: "signature" | "imported" | "generated";
   signingPrivKey?: string; // Optional signing key for blob transactions
 }
 ```
@@ -111,11 +111,11 @@ The signing key is a **dedicated secp256k1 keypair** used only for blob transact
 
 ### Key Types Summary
 
-| Key Type        | Purpose                     | Storage                        |
-| --------------- | --------------------------- | ------------------------------ |
-| View Key        | Scan announcements, decrypt | Encrypted in localStorage      |
-| Spend Key       | Stealth address ownership   | Encrypted in localStorage      |
-| **Signing Key** | Sign blob transactions      | Encrypted in localStorage      |
+| Key Type        | Purpose                        | Storage                        |
+| --------------- | ------------------------------ | ------------------------------ |
+| View Key        | Scan announcements, decrypt    | Encrypted in localStorage      |
+| Spend Key       | Stealth address ownership      | Encrypted in localStorage      |
+| **Signing Key** | Sign blob transactions         | Encrypted in localStorage      |
 | Wallet Key      | Optional registry + derivation | Browser wallet (MetaMask, etc) |
 
 ### Signing Key Flow
@@ -138,36 +138,6 @@ Privacy:
   - Signing address is isolated from the user's main wallet
   - Fund via privacypools.com for stronger unlinkability
   - Main wallet is optional (registry + deterministic derivation only)
-```
-
-### Implementation
-
-**Key Derivation** (`modules/keys/derivation.ts`):
-
-```typescript
-export function generateSigningKey(): SigningKey {
-  const keyPair = generateSecp256k1KeyPair();
-  const account = privateKeyToAccount(keyPair.privateKey);
-  return {
-    privateKey: keyPair.privateKey,
-    address: account.address,
-  };
-}
-```
-
-**Session Management** (`state/session-context.tsx`):
-
-```typescript
-interface SessionContextValue {
-  // ... stealth keys ...
-  signingPrivKey: string | null;
-  signingAddress: `0x${string}` | null;
-  signingBalance: string | null;
-  hasSigningKey: boolean;
-  generateSigningKey: () => SigningKey;
-  saveSigningKey: (signingKey: SigningKey, password: string) => Promise<void>;
-  refreshSigningBalance: () => Promise<void>;
-}
 ```
 
 ## Message Flow
@@ -208,65 +178,6 @@ Announcement metadata is intentionally minimal:
 Thread labels and message text are inside the encrypted blob payload. They are
 not stored as plaintext metadata in the event.
 
-## RPC Optimization
-
-To avoid rate limiting, the app uses:
-
-1. **Shared `useRegistry` hook** - Global cache prevents duplicate registry lookups
-2. **Sequential transaction fetching** - One transaction at a time when scanning sent logs
-3. **Debounced polling** - 60s interval, only when tab is visible
-4. **Configurable lookback** - User can reduce history window in settings
-
-```typescript
-// Example: Sequential fetching in getSentMessagesFromLogs
-for (const hash of txHashes) {
-  const tx = await publicClient.getTransaction({ hash });
-  // Process one at a time to avoid rate limits
-}
-```
-
-## State Architecture
-
-### session-context.tsx
-
-Central state for user keys and session:
-
-```typescript
-interface SessionContextValue {
-  viewPrivKey: string;
-  spendPrivKey: string;
-  viewPubKey: `0x${string}` | null;
-  spendPubKey: `0x${string}` | null;
-  metaAddress: string | null;
-  sessionReady: boolean;
-  sessionStatus: 'checking' | 'locked' | 'unlocked';
-  unlockSession: (password: string) => Promise<boolean>;
-  lockSession: () => void;
-  saveKeys: (keys, method, password) => Promise<void>;
-  clearStoredKeys: () => void;
-  // Signing key
-  signingPrivKey: string | null;
-  signingAddress: `0x${string}` | null;
-  signingBalance: string | null;
-  hasSigningKey: boolean;
-  saveSigningKey: (signingKey, password) => Promise<void>;
-  refreshSigningBalance: () => Promise<void>;
-}
-```
-
-### useChatSync.ts
-
-Manages message synchronization:
-
-```typescript
-interface ChatSyncResult {
-  messages: ChatMessage[];
-  pending: PendingBlob[];
-  status: SyncStatus;
-  syncNow: () => void;
-}
-```
-
 ## Encryption Details
 
 | Component            | Algorithm            | Key Size            |
@@ -285,37 +196,4 @@ EIP-4844 Blob (131,072 bytes)
     ├── Nonce (24 bytes)
     ├── Ciphertext (variable)
     └── Auth Tag (16 bytes)
-```
-
-## Contract Interactions
-
-### ERC-6538 Registry
-
-Read stealth meta-address for a wallet:
-
-```typescript
-const metaAddress = await getStealthMetaAddress({
-  registrant: address,
-  schemeId: 1n,
-});
-```
-
-### MessageEnvelopeRegistry Announcer
-
-Send message with blob:
-
-```typescript
-await walletClient.sendTransaction({
-  to: announcerConfig.address,
-  data: encodeAnnouncementCalldata({...}),
-  blobs,
-  kzg,
-});
-```
-
-## Environment Configuration
-
-```bash
-# Required
-VITE_PUBLIC_RPC_URL=https://sepolia.infura.io/v3/YOUR_KEY
 ```

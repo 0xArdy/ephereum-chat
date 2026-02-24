@@ -21,11 +21,6 @@ Ephereum Chat provides:
 1. Sepolia ETH for signing-key gas fees (~0.01 ETH for testing)
 2. Optional wallet (MetaMask, Rabby, etc.) if you want deterministic key derivation or registry registration
 
-**Get Sepolia ETH from faucets:**
-
-- [Alchemy Sepolia Faucet](https://sepoliafaucet.com/)
-- [Infura Sepolia Faucet](https://www.infura.io/faucet/sepolia)
-
 ---
 
 ### Step 1: Open the App
@@ -39,11 +34,11 @@ Ephereum Chat provides:
 
 Choose how to generate your stealth address keys:
 
-| Method                 | Description                                   | Best For                 |
-| ---------------------- | --------------------------------------------- | ------------------------ |
-| **Derive from Wallet** | Sign a message to generate deterministic keys | Deterministic recovery   |
-| **Generate New Keys**  | Create random keys you must back up           | Advanced users           |
-| **Import Existing**    | Paste your existing private keys              | Restoring from backup    |
+| Method                 | Description                                   | Best For               |
+| ---------------------- | --------------------------------------------- | ---------------------- |
+| **Derive from Wallet** | Sign a message to generate deterministic keys | Deterministic recovery |
+| **Generate New Keys**  | Create random keys you must back up           | Advanced users         |
+| **Import Existing**    | Paste your existing private keys              | Restoring from backup  |
 
 **Derive from Wallet (Optional):**
 
@@ -73,12 +68,12 @@ To send messages, you need a **signing key** because browser wallets cannot sign
 
 #### What is the Signing Key?
 
-| Feature     | Description                                                       |
-| ----------- | ----------------------------------------------------------------- |
-| **Purpose** | Sign blob transactions (your wallet can't do this)                |
-| **Privacy** | Separate messaging-only address, isolated from your main wallet   |
-| **Funding** | Needs Sepolia ETH for gas fees                                    |
-| **Storage** | Encrypted locally with your other keys                            |
+| Feature     | Description                                                     |
+| ----------- | --------------------------------------------------------------- |
+| **Purpose** | Sign blob transactions (your wallet can't do this)              |
+| **Privacy** | Separate messaging-only address, isolated from your main wallet |
+| **Funding** | Needs Sepolia ETH for gas fees                                  |
+| **Storage** | Encrypted locally with your other keys                          |
 
 #### Why This Matters for Privacy
 
@@ -134,12 +129,12 @@ Optional Wallet (MetaMask, etc.)
 
 ### Key Usage Summary
 
-| Key Type    | Used For                      | Where Stored                  |
-| ----------- | ----------------------------- | ----------------------------- |
-| Wallet      | Optional derivation + registry | MetaMask/browser wallet      |
-| View Key    | Scanning, decrypting messages | Encrypted in localStorage     |
-| Spend Key   | Stealth address ownership     | Encrypted in localStorage     |
-| **Signing** | **Signing blob transactions** | **Encrypted in localStorage** |
+| Key Type    | Used For                       | Where Stored                  |
+| ----------- | ------------------------------ | ----------------------------- |
+| Wallet      | Optional derivation + registry | MetaMask/browser wallet       |
+| View Key    | Scanning, decrypting messages  | Encrypted in localStorage     |
+| Spend Key   | Stealth address ownership      | Encrypted in localStorage     |
+| **Signing** | **Signing blob transactions**  | **Encrypted in localStorage** |
 
 **Important:** Your main wallet never sees or signs the actual message transactions. The signing key handles all blob transactions for privacy.
 
@@ -338,72 +333,6 @@ If you forgot your password:
 2. Re-run onboarding to derive/import keys again
 
 Note: This clears your stored keys, but messages on-chain are still readable if you have the same keys.
-
----
-
-## Security Notes
-
-### What's Private
-
-- Recipient identity (hidden via stealth addresses)
-- Message content (encrypted end-to-end)
-- Keys (encrypted in localStorage with your password)
-- Your main wallet address (if using privacypools.com)
-
-### What's Public
-
-- A message was sent (visible on-chain)
-- When it was sent (in transaction/block history)
-- Minimal metadata (`version` and `payloadHash`)
-- The signing address (but this is a stealth address, not your main wallet)
-
-### Key Backup
-
-If you used "Derive from Wallet":
-
-- Your keys are deterministic from the signature
-- Re-deriving with the same wallet gives the same keys
-- No separate backup needed
-
-If you used "Generate New Keys":
-
-- **Back up your private keys!**
-- Store them securely offline
-- Lost keys = lost access to your messages
-
-**Signing Key:**
-
-- Back up the private key if you want to reuse it later
-- You can always generate a new one (just fund the new address)
-
----
-
-## Quick Reference
-
-### To Receive Messages
-
-1. Setup keys (generate/import or optional wallet-derive) → Set password
-2. (Optional) Go to Settings → Registry → Register
-3. Share your meta-address directly (or wallet address if registered)
-
-### To Send a Message
-
-1. Get recipient's meta-address (preferred) or wallet address
-2. Ensure signing key is generated and funded (Settings → Keys)
-3. Enter in "To" field
-4. Write message → Send
-
-### To Read Messages
-
-1. Open the app (messages sync automatically)
-2. Click messages in sidebar to read
-
-### To Maximize Privacy
-
-1. Generate new keys (don't derive)
-2. Fund signing key via privacypools.com
-3. Don't register in public registry
-4. Clear keys when done
 
 ---
 

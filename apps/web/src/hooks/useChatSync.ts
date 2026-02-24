@@ -1,16 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getPublicClient } from "wagmi/actions";
-import { fetchBlobFromBlobscan } from "../modules/blob/blobscan";
-import { decryptBlobMessage } from "../modules/blob/decode";
-import { scanAnnouncements, type ScanMatch } from "../modules/stealth/scan";
-import {
-  compareChatMessagesByChainAsc,
-  toUserErrorMessage,
-  type ChatMessage,
-} from "../utils";
-import { config } from "../wagmi";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { getPublicClient } from 'wagmi/actions';
+import { fetchBlobFromBlobscan } from '../modules/blob/blobscan';
+import { decryptBlobMessage } from '../modules/blob/decode';
+import { scanAnnouncements, type ScanMatch } from '../modules/stealth/scan';
+import { compareChatMessagesByChainAsc, toUserErrorMessage, type ChatMessage } from '../utils';
+import { config } from '../wagmi';
 
-type SyncState = "idle" | "syncing" | "error";
+type SyncState = 'idle' | 'syncing' | 'error';
 
 export type PendingAnnouncement = {
   id: string;
@@ -49,7 +45,7 @@ type ChatSyncCacheEntry = {
 };
 
 const EMPTY_SYNC_STATUS: SyncStatus = {
-  state: "idle",
+  state: 'idle',
   lastSyncedAt: null,
   lastSyncedBlock: null,
 };
@@ -95,9 +91,7 @@ function readChatSyncCache(cacheKey: string | null): ChatSyncCacheEntry {
   };
 }
 
-async function batchFetchSenders(
-  txHashes: `0x${string}`[],
-): Promise<Map<string, string>> {
+async function batchFetchSenders(txHashes: `0x${string}`[]): Promise<Map<string, string>> {
   const publicClient = getPublicClient(config);
   const senderMap = new Map<string, string>();
 
@@ -117,9 +111,7 @@ async function batchFetchSenders(
   return senderMap;
 }
 
-async function batchFetchBlockTimestamps(
-  blockNumbers: bigint[],
-): Promise<Map<string, number>> {
+async function batchFetchBlockTimestamps(blockNumbers: bigint[]): Promise<Map<string, number>> {
   const publicClient = getPublicClient(config);
   const timestampMap = new Map<string, number>();
   if (!publicClient) return timestampMap;
@@ -138,14 +130,8 @@ async function batchFetchBlockTimestamps(
   return timestampMap;
 }
 
-function buildMessageId(
-  match: Pick<ScanMatch, "transactionHash" | "ephemPubKey" | "logIndex">,
-  payloadHash?: string,
-) {
-  return (
-    payloadHash ??
-    `${match.transactionHash}-${match.logIndex ?? match.ephemPubKey}`
-  );
+function buildMessageId(match: Pick<ScanMatch, 'transactionHash' | 'ephemPubKey' | 'logIndex'>, payloadHash?: string) {
+  return payloadHash ?? `${match.transactionHash}-${match.logIndex ?? match.ephemPubKey}`;
 }
 
 export function useChatSync({
@@ -156,27 +142,18 @@ export function useChatSync({
   enabled = true,
   onSyncComplete,
 }: ChatSyncOptions) {
-  const cacheKey = useMemo(
-    () => getChatSyncCacheKey({ viewPubKey, spendPubKey }),
-    [spendPubKey, viewPubKey],
-  );
+  const cacheKey = useMemo(() => getChatSyncCacheKey({ viewPubKey, spendPubKey }), [spendPubKey, viewPubKey]);
   const initialCache = useMemo(() => readChatSyncCache(cacheKey), [cacheKey]);
 
-  const [messages, setMessages] = useState<ChatMessage[]>(
-    () => initialCache.messages,
-  );
-  const [pending, setPending] = useState<PendingAnnouncement[]>(
-    () => initialCache.pending,
-  );
+  const [messages, setMessages] = useState<ChatMessage[]>(() => initialCache.messages);
+  const [pending, setPending] = useState<PendingAnnouncement[]>(() => initialCache.pending);
   const [status, setStatus] = useState<SyncStatus>(() => initialCache.status);
 
   const messageIds = useRef(new Set<string>());
   const pendingIds = useRef(new Set<string>());
   const pendingRef = useRef<PendingAnnouncement[]>(initialCache.pending);
   const syncingRef = useRef(false);
-  const lastSyncedBlockRef = useRef<bigint | null>(
-    initialCache.lastSyncedBlock,
-  );
+  const lastSyncedBlockRef = useRef<bigint | null>(initialCache.lastSyncedBlock);
   const hasAutoSyncedRef = useRef(false);
   const onSyncCompleteRef = useRef(onSyncComplete);
   const activeCacheKeyRef = useRef<string | null>(cacheKey);
@@ -216,9 +193,7 @@ export function useChatSync({
     }
   }, []);
 
-  const isReady = Boolean(
-    enabled && viewPrivKey && spendPrivKey && viewPubKey && spendPubKey,
-  );
+  const isReady = Boolean(enabled && viewPrivKey && spendPrivKey && viewPubKey && spendPubKey);
 
   const upsertMessages = useCallback((items: ChatMessage[]) => {
     if (!items.length) return;
@@ -277,7 +252,7 @@ export function useChatSync({
           threadId,
           content,
           createdAt,
-          direction: "inbound",
+          direction: 'inbound',
           transactionHash: match.transactionHash,
           contentAvailable: true,
           payloadHash,
@@ -291,13 +266,7 @@ export function useChatSync({
   );
 
   const syncMatches = useCallback(
-    async ({
-      matches,
-      viewPriv,
-    }: {
-      matches: ScanMatch[];
-      viewPriv: `0x${string}`;
-    }) => {
+    async ({ matches, viewPriv }: { matches: ScanMatch[]; viewPriv: `0x${string}` }) => {
       const newPending: PendingAnnouncement[] = [];
       const toProcess: ScanMatch[] = [];
 
@@ -312,9 +281,7 @@ export function useChatSync({
 
       const txHashes = toProcess.map((m) => m.transactionHash);
       const senderMap = await batchFetchSenders(txHashes);
-      const blockTimestampMap = await batchFetchBlockTimestamps(
-        toProcess.map((match) => match.blockNumber),
-      );
+      const blockTimestampMap = await batchFetchBlockTimestamps(toProcess.map((match) => match.blockNumber));
 
       const blobResults = await Promise.all(
         toProcess.map(async (match) => {
@@ -330,17 +297,15 @@ export function useChatSync({
         const id = buildMessageId(match, payloadHash);
         const blockNumber = match.blockNumber ?? null;
         const createdAt =
-          blockNumber !== null
-            ? (blockTimestampMap.get(blockNumber.toString()) ?? Date.now())
-            : Date.now();
+          blockNumber !== null ? (blockTimestampMap.get(blockNumber.toString()) ?? Date.now()) : Date.now();
         const logIndex = match.logIndex ?? null;
         const sender = senderMap.get(match.transactionHash);
         const baseMessage: ChatMessage = {
           id,
-          threadId: "Loading...",
-          content: "Loading encrypted payload...",
+          threadId: 'Loading...',
+          content: 'Loading encrypted payload...',
           createdAt,
-          direction: "inbound",
+          direction: 'inbound',
           transactionHash: match.transactionHash,
           contentAvailable: false,
           payloadHash,
@@ -376,19 +341,19 @@ export function useChatSync({
             match,
             payloadHash,
             content: decrypted.content,
-            threadId: decrypted.threadId || "Untitled",
+            threadId: decrypted.threadId || 'Untitled',
             createdAt,
             sender,
             blockNumber,
             logIndex,
           });
         } catch (error) {
-          const message = toUserErrorMessage(error, "Failed to decrypt.");
+          const message = toUserErrorMessage(error, 'Failed to decrypt.');
           upsertMessages([
             {
               ...baseMessage,
-              threadId: "Encrypted",
-              content: "Encrypted content (pending decryption).",
+              threadId: 'Encrypted',
+              content: 'Encrypted content (pending decryption).',
             },
           ]);
           newPending.push({
@@ -415,9 +380,7 @@ export function useChatSync({
     async ({ viewPriv }: { viewPriv: `0x${string}` }) => {
       if (!pendingRef.current.length) return;
 
-      const senderMap = await batchFetchSenders(
-        pendingRef.current.map((item) => item.transactionHash),
-      );
+      const senderMap = await batchFetchSenders(pendingRef.current.map((item) => item.transactionHash));
 
       const blobResults = await Promise.all(
         pendingRef.current.map(async (item) => {
@@ -448,10 +411,10 @@ export function useChatSync({
           upsertMessages([
             {
               id: item.id,
-              threadId: decrypted.threadId || "Untitled",
+              threadId: decrypted.threadId || 'Untitled',
               content: decrypted.content,
               createdAt: item.createdAt,
-              direction: "inbound",
+              direction: 'inbound',
               transactionHash: item.transactionHash,
               payloadHash: item.payloadHash,
               sender,
@@ -463,15 +426,15 @@ export function useChatSync({
         } catch (error) {
           stillPending.push({
             ...item,
-            error: toUserErrorMessage(error, "Failed to decrypt."),
+            error: toUserErrorMessage(error, 'Failed to decrypt.'),
           });
           upsertMessages([
             {
               id: item.id,
-              threadId: "Encrypted",
-              content: "Encrypted content (pending decryption).",
+              threadId: 'Encrypted',
+              content: 'Encrypted content (pending decryption).',
               createdAt: item.createdAt,
-              direction: "inbound",
+              direction: 'inbound',
               transactionHash: item.transactionHash,
               payloadHash: item.payloadHash,
               sender: item.sender,
@@ -493,13 +456,10 @@ export function useChatSync({
     if (syncingRef.current) return;
 
     syncingRef.current = true;
-    setStatus((prev) => ({ ...prev, state: "syncing", error: undefined }));
+    setStatus((prev) => ({ ...prev, state: 'syncing', error: undefined }));
 
     try {
-      const fromBlock =
-        lastSyncedBlockRef.current !== null
-          ? lastSyncedBlockRef.current + 1n
-          : 0n;
+      const fromBlock = lastSyncedBlockRef.current !== null ? lastSyncedBlockRef.current + 1n : 0n;
       const scan = await scanAnnouncements({
         viewPrivKey: viewPrivKey as `0x${string}`,
         spendPrivKey: spendPrivKey as `0x${string}`,
@@ -521,30 +481,22 @@ export function useChatSync({
       }, lastSyncedBlockRef.current);
       lastSyncedBlockRef.current = latestScannedBlock;
       setStatus({
-        state: "idle",
+        state: 'idle',
         lastSyncedAt: Date.now(),
         lastSyncedBlock: latestScannedBlock,
       });
       onSyncCompleteRef.current?.();
     } catch (error) {
-      const message = toUserErrorMessage(error, "Sync failed.");
+      const message = toUserErrorMessage(error, 'Sync failed.');
       setStatus((prev) => ({
         ...prev,
-        state: "error",
+        state: 'error',
         error: message,
       }));
     } finally {
       syncingRef.current = false;
     }
-  }, [
-    isReady,
-    retryPending,
-    spendPrivKey,
-    spendPubKey,
-    syncMatches,
-    viewPrivKey,
-    viewPubKey,
-  ]);
+  }, [isReady, retryPending, spendPrivKey, spendPubKey, syncMatches, viewPrivKey, viewPubKey]);
 
   useEffect(() => {
     const cached = readChatSyncCache(cacheKey);
@@ -581,7 +533,7 @@ export function useChatSync({
     if (!isReady) return;
 
     const interval = setInterval(() => {
-      if (document.visibilityState !== "visible") return;
+      if (document.visibilityState !== 'visible') return;
       void syncNow();
     }, 60000);
 

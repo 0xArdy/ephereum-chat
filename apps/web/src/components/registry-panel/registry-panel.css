@@ -1,0 +1,98 @@
+.registry-panel {
+  background: transparent;
+}
+
+.registry-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.registry-panel__header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.registry-panel__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.registry-panel__wallet {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.registry-panel__wallet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.registry-panel__connect {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.registry-panel__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.registry-panel__value {
+  font-size: 0.875rem;
+  color: var(--text);
+  margin: 0;
+}
+
+.registry-panel__value--mono {
+  font-family: var(--font-mono);
+  word-break: break-all;
+}
+
+.registry-panel__hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.registry-panel__error {
+  font-size: 0.75rem;
+  color: var(--error);
+  margin: 0;
+}
+
+.registry-panel__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: var(--bg);
+  border-radius: 0.5rem;
+}
+
+.registry-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.registry-panel__link {
+  font-size: 0.75rem;
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.registry-panel__link:hover {
+  text-decoration: none;
+}

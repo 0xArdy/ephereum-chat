@@ -1,0 +1,63 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap");
+
+:root {
+  color-scheme: light;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --bg: #f6f4ef;
+  --bg-elev: #ffffff;
+  --bg-soft: #f0ede6;
+  --card: #ffffff;
+  --text: #1b1b1b;
+  --text-muted: #6d6a65;
+  --border: #e3ded6;
+  --primary: #1e5b52;
+  --primary-hover: #16453e;
+  --accent: #1e5b52;
+  --accent-strong: #16453e;
+  --accent-soft: #d6e4df;
+  --success: #2d8a6e;
+  --warning: #b57c2a;
+  --error: #b24a3d;
+  --danger: #b24a3d;
+  --shadow: 0 14px 34px rgba(24, 31, 28, 0.12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background:
+    radial-gradient(900px 600px at 85% -10%, #eef6f2 0%, transparent 60%),
+    radial-gradient(900px 500px at 10% 0%, #f7eee3 0%, transparent 55%), var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}

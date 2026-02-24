@@ -1,0 +1,21 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["apps/web/src/main.tsx"],
+  "project": ["apps/web/src/**/*.{ts,tsx}"],
+  "ignoreDependencies": [
+    "react",
+    "react-dom",
+    "@types/react",
+    "@types/react-dom",
+    "@tanstack/react-query",
+    "wagmi",
+    "kzg-wasm",
+    "lucide-react",
+    "@typescript-eslint/eslint-plugin",
+    "eslint-plugin-jsx-a11y",
+    "eslint-plugin-react",
+    "eslint-plugin-react-hooks"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "exclude": ["duplicates"]
+}

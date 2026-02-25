@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Check, Copy, RefreshCw } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAccount, useConnect, useSignMessage } from 'wagmi';
 import { PasswordField } from '../../components/password-field/PasswordField';
 import {
@@ -20,8 +20,15 @@ type Step = 'method' | 'import' | 'password' | 'signing' | 'done';
 export function OnboardingPage() {
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
-  const { saveKeys, sessionReady, signingAddress, signingBalance, refreshSigningBalance, saveSigningKey } =
-    useSession();
+  const {
+    saveKeys,
+    sessionReady,
+    signingAddress,
+    signingBalance,
+    refreshSigningBalance,
+    saveSigningKey,
+    importSigningKey,
+  } = useSession();
   const { navigate } = useRouter();
 
   const [step, setStep] = useState<Step>('method');
@@ -32,6 +39,8 @@ export function OnboardingPage() {
   const [importViewKey, setImportViewKey] = useState('');
   const [importSpendKey, setImportSpendKey] = useState('');
   const [pendingSigningKey, setPendingSigningKey] = useState<SigningKey | null>(null);
+  const [importSigningKeyInput, setImportSigningKeyInput] = useState('');
+  const [showImportInput, setShowImportInput] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [derivationMethod, setDerivationMethod] = useState<'signature' | 'imported' | 'generated'>('signature');
@@ -118,6 +127,20 @@ export function OnboardingPage() {
     const key = generateSigningKey();
     setPendingSigningKey(key);
   }, []);
+
+  const handleImportSigningKey = useCallback(() => {
+    setError('');
+
+    const key = importSigningKey(importSigningKeyInput);
+    if (!key) {
+      setError('Invalid private key. Must be a 66-character hex string starting with 0x.');
+      return;
+    }
+
+    setPendingSigningKey(key);
+    setImportSigningKeyInput('');
+    setShowImportInput(false);
+  }, [importSigningKey, importSigningKeyInput]);
 
   const handleSaveSigningKey = useCallback(async () => {
     if (!pendingSigningKey) return;
@@ -332,9 +355,56 @@ export function OnboardingPage() {
 
             {!pendingSigningKey && !signingAddress ? (
               <div className='onboarding__signing-setup'>
-                <button className='btn btn--primary' type='button' onClick={handleGenerateSigningKey}>
-                  Generate Signing Key
-                </button>
+                {!showImportInput ? (
+                  <>
+                    <button className='btn btn--primary' type='button' onClick={handleGenerateSigningKey}>
+                      Generate Signing Key
+                    </button>
+
+                    <button className='btn btn--ghost' type='button' onClick={() => setShowImportInput(true)}>
+                      Import Signing Key
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className='field'>
+                      <label className='field__label' htmlFor='import-signing-key'>
+                        Private Key
+                      </label>
+                      <input
+                        className='field__input'
+                        id='import-signing-key'
+                        type='password'
+                        placeholder='0x...'
+                        value={importSigningKeyInput}
+                        onChange={(e) => setImportSigningKeyInput(e.target.value)}
+                        autoComplete='off'
+                      />
+                    </div>
+
+                    <div className='onboarding__signing-import-actions'>
+                      <button
+                        className='btn btn--primary'
+                        type='button'
+                        onClick={handleImportSigningKey}
+                        disabled={!importSigningKeyInput}
+                      >
+                        Import
+                      </button>
+                      <button
+                        className='btn btn--ghost'
+                        type='button'
+                        onClick={() => {
+                          setShowImportInput(false);
+                          setImportSigningKeyInput('');
+                          setError('');
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <div className='onboarding__signing-info'>

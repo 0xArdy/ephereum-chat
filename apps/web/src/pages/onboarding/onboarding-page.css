@@ -235,6 +235,22 @@
   margin-bottom: 1.5rem;
 }
 
+.onboarding__signing-setup .field {
+  width: 100%;
+  max-width: 320px;
+}
+
+.onboarding__signing-import-actions {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.onboarding__signing-import-actions .btn {
+  flex: 1;
+}
+
 .onboarding__signing-info {
   background: var(--bg);
   border: 1px solid var(--border);

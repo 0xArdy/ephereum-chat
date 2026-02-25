@@ -459,7 +459,7 @@ export function ChatPage() {
             {!hasSigningKey && (
               <div className='composer__warning'>
                 <p>No signing key configured.</p>
-                <InternalLink className='btn btn--ghost' href='/settings'>
+                <InternalLink className='btn btn--danger-outline' href='/settings'>
                   Set up in Settings
                 </InternalLink>
               </div>
@@ -467,14 +467,9 @@ export function ChatPage() {
             {hasSigningKey && hasLowBalance && (
               <div className='composer__warning'>
                 <p>Low balance: {signingBalance} ETH. Fund your signing key to send messages.</p>
-                <a
-                  className='btn btn--ghost'
-                  href='https://sepoliafaucet.com/'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                >
-                  Get Sepolia ETH
-                </a>
+                <InternalLink className='btn btn--danger-outline' href='/settings'>
+                  Fund signing key
+                </InternalLink>
               </div>
             )}
             <div className='composer__row composer__row--top'>

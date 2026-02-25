@@ -4,6 +4,8 @@ import { ERC6538_REGISTRY_ABI, ERC6538_REGISTRY_ADDRESS } from '../../modules/st
 import { useSession } from '../../state/session-context';
 import { formatTxHash, truncateString, formatAddress } from '../../utils';
 import './registry-panel.css';
+import { useCallback, useState } from 'react';
+import { Check, Copy } from 'lucide-react';
 
 export function RegistryPanel() {
   const { metaAddress } = useSession();
@@ -11,6 +13,7 @@ export function RegistryPanel() {
   const { connect, connectors, error: walletError, isPending: isWalletPending } = useConnect();
   const { disconnect } = useDisconnect();
   const { writeContract, data: registerHash, error: registerError, isPending: isRegistering } = useWriteContract();
+  const [copiedMeta, setCopiedMeta] = useState(false);
 
   const {
     registryMetaAddress,
@@ -34,6 +37,14 @@ export function RegistryPanel() {
       args: [BigInt(1), metaAddress as `0x${string}`],
     });
   }
+
+  const handleCopyMetaAddress = useCallback(() => {
+    if (!metaAddress) return;
+    void navigator.clipboard.writeText(metaAddress).then(() => {
+      setCopiedMeta(true);
+      setTimeout(() => setCopiedMeta(false), 1500);
+    });
+  }, [metaAddress]);
 
   return (
     <section className='registry-panel'>
@@ -83,9 +94,23 @@ export function RegistryPanel() {
         </div>
 
         {metaAddress && (
-          <div className='registry-panel__meta'>
-            <p className='registry-panel__label'>Your Meta-address</p>
-            <p className='registry-panel__value registry-panel__value--mono'>{truncateString(metaAddress, 50)}</p>
+          <div className='keys-panel__content'>
+            <div className='keys-panel__meta'>
+              <p className='keys-panel__label'>Meta-address</p>
+              <p className='keys-panel__value keys-panel__value--mono keys-panel__value--copyable'>
+                <span>{metaAddress ? truncateString(metaAddress, 40) : '—'}</span>
+                {metaAddress && (
+                  <button
+                    className='copy-icon-btn'
+                    type='button'
+                    onClick={handleCopyMetaAddress}
+                    title='Copy meta-address'
+                  >
+                    {copiedMeta ? <Check size={14} /> : <Copy size={14} />}
+                  </button>
+                )}
+              </p>
+            </div>
           </div>
         )}
 
